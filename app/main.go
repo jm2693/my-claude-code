@@ -4,7 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"go/types"
 	"os"
+	"path/filepath"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -41,6 +43,22 @@ func main() {
 						},
 					},
 				},
+			},
+			Tools: []openai.ChatCompletionToolUnionParam{
+				openai.ChatCompletionFunctionTool(openai.FunctionDefinitionParam{
+					Name:        "read",
+					Description: openai.String("Give LLM model access to a file"),
+					Parameters: openai.FunctionParameters(map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"filepath": map[string]any{
+								"type": "string",
+								"description": "Filepath of file to give access to",
+							},
+						},
+						"required": []string{"filepath"},
+					}),
+				}),
 			},
 		},
 	)
