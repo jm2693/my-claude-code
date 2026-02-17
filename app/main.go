@@ -4,9 +4,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"go/types"
+	// "go/types"
 	"os"
-	"path/filepath"
+	// "path/filepath"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
