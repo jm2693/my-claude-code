@@ -51,12 +51,12 @@ func main() {
 					Parameters: openai.FunctionParameters(map[string]any{
 						"type": "object",
 						"properties": map[string]any{
-							"filepath": map[string]any{
+							"file_path": map[string]any{
 								"type": "string",
 								"description": "Filepath of file to give access to",
 							},
 						},
-						"required": []string{"filepath"},
+						"required": []string{"file_path"},
 					}),
 				}),
 			},
