@@ -92,7 +92,6 @@ func main() {
 				}
 
 				fileContentString := string(fileContent)
-				fmt.Printf("%s", fileContentString)
 
 				params.Messages = append(params.Messages, openai.ToolMessage(fileContentString, toolCall.ID))
 			}
