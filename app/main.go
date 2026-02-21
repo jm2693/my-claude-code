@@ -97,11 +97,11 @@ func main() {
 				params.Messages = append(params.Messages, openai.ToolMessage(fileContentString, toolCall.ID))
 			}
 		}
-	}
-
-	resp, err = client.Chat.Completions.New(context.Background(), params)
-	if err != nil {
-		panic(err)
+		
+		resp, err = client.Chat.Completions.New(context.Background(), params)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	fmt.Fprintln(os.Stderr, "Logs from your program will appear here!")
