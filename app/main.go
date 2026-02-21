@@ -74,32 +74,28 @@ func main() {
 
 	toolCalls := resp.Choices[0].Message.ToolCalls
 
-	if len(toolCalls) == 0 {
-		fmt.Println(resp.Choices[0].Message.Content)
-		return
-	}
+	for len(toolCalls) != 0 {
+		params.Messages = append(params.Messages, resp.Choices[0].Message.ToParam())
+		for _, toolCall := range toolCalls {
+			if toolCall.Function.Name == "read" {
+				var args map[string]any
 
-	params.Messages = append(params.Messages, resp.Choices[0].Message.ToParam())
-	for _, toolCall := range toolCalls {
-		if toolCall.Function.Name == "read" {
-			var args map[string]any
+				err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
+				if err != nil {
+					panic(err)
+				}
 
-			err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
-			if err != nil {
-				panic(err)
+				filePath := args["file_path"].(string)
+				fileContent, err := os.ReadFile(filePath)
+				if err != nil {
+					panic(err)
+				}
+
+				fileContentString := string(fileContent)
+				fmt.Printf("%s", fileContentString)
+
+				params.Messages = append(params.Messages, openai.ToolMessage(fileContentString, toolCall.ID))
 			}
-
-			filePath := args["file_path"].(string)
-			fileContent, err := os.ReadFile(filePath)
-			if err != nil {
-				panic(err)
-			}
-
-			fileContentString := string(fileContent)
-			fmt.Printf("%s", fileContentString)
-			return 
-
-			// params.Messages = append(params.Messages, openai.ToolMessage(fileContentString, toolCall.ID))
 		}
 	}
 
