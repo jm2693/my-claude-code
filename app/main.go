@@ -75,7 +75,8 @@ func main() {
 	toolCalls := resp.Choices[0].Message.ToolCalls
 
 	if len(toolCalls) == 0 {
-		panic("No tool calls in response")
+		fmt.Println(resp.Choices[0].Message.Content)
+		return
 	}
 
 	params.Messages = append(params.Messages, resp.Choices[0].Message.ToParam())
