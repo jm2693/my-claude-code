@@ -80,7 +80,7 @@ func main() {
 
 	params.Messages = append(params.Messages, resp.Choices[0].Message.ToParam())
 	for _, toolCall := range toolCalls {
-		if toolCall.Function.Name == "file_path" {
+		if toolCall.Function.Name == "read" {
 			var args map[string]any
 
 			err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
