@@ -102,6 +102,8 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		toolCalls = resp.Choices[0].Message.ToolCalls
 	}
 
 	fmt.Fprintln(os.Stderr, "Logs from your program will appear here!")
