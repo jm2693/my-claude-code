@@ -124,7 +124,7 @@ func main() {
 				}
 
 				filePath := args["file_path"].(string)
-				fileContent := args["file_content"].(string)
+				fileContent := args["content"].(string)
 
 				err = os.WriteFile(filePath, []byte(fileContent), os.FileMode(USR_RD))
 
