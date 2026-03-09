@@ -14,6 +14,8 @@ import (
 	"github.com/openai/openai-go/v3/option"
 )
 
+var USR_RD = 0o600
+
 func main() {
 	var prompt string
 	flag.StringVar(&prompt, "p", "", "Prompt to send to LLM")
@@ -47,16 +49,34 @@ func main() {
 			Tools: []openai.ChatCompletionToolUnionParam{
 				openai.ChatCompletionFunctionTool(openai.FunctionDefinitionParam{
 					Name:        "read",
-					Description: openai.String("Give LLM model access to a file"),
+					Description: openai.String("Give LLM access to read a file"),
 					Parameters: openai.FunctionParameters(map[string]any{
 						"type": "object",
 						"properties": map[string]any{
 							"file_path": map[string]any{
 								"type": "string",
-								"description": "Filepath of file to give access to",
+								"description": "Filepath of file to give read access to",
 							},
 						},
 						"required": []string{"file_path"},
+					}),
+				}),
+				openai.ChatCompletionFunctionTool(openai.FunctionDefinitionParam{
+					Name: "write",
+					Description: openai.String("Give LLM access to write to a file"),
+					Parameters: openai.FunctionParameters(map[string]any{
+						"type": "object",
+						"properties": map[string]any{
+							"file_path": map[string]any{
+								"type": "string",
+								"description": "Filepath of file to give write access to",
+							},
+							"content": map[string]any{
+								"type": "string",
+								"description": "The content to write to the file",
+							},
+						},
+						"required": []string{"file_path", "content"},
 					}),
 				}),
 			},
@@ -77,7 +97,8 @@ func main() {
 	for len(toolCalls) != 0 {
 		params.Messages = append(params.Messages, resp.Choices[0].Message.ToParam())
 		for _, toolCall := range toolCalls {
-			if toolCall.Function.Name == "read" {
+			switch toolCall.Function.Name {
+			case "read":
 				var args map[string]any
 
 				err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
@@ -92,6 +113,27 @@ func main() {
 				}
 
 				fileContentString := string(fileContent)
+
+				params.Messages = append(params.Messages, openai.ToolMessage(fileContentString, toolCall.ID))
+			case "write":
+				var args map[string]any
+
+				err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
+				if err != nil {
+					panic(err)
+				}
+
+				filePath := args["file_path"].(string)
+				fileContent := args["file_content"].(string)
+
+				err = os.WriteFile(filePath, []byte(fileContent), os.FileMode(USR_RD))
+
+				if err != nil {
+					panic(err)
+				}
+
+				newFileContent, err := os.ReadFile(filePath)
+				fileContentString := string(newFileContent)
 
 				params.Messages = append(params.Messages, openai.ToolMessage(fileContentString, toolCall.ID))
 			}
