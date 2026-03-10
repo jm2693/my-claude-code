@@ -14,7 +14,8 @@ import (
 	"github.com/openai/openai-go/v3/option"
 )
 
-var USR_RD = 0o600
+var USR_RD_WR = 0o600
+var USER_RD_WR_EX = 0o700
 
 func main() {
 	var prompt string
@@ -126,7 +127,7 @@ func main() {
 				filePath := args["file_path"].(string)
 				fileContent := args["content"].(string)
 
-				err = os.WriteFile(filePath, []byte(fileContent), os.FileMode(USR_RD))
+				err = os.WriteFile(filePath, []byte(fileContent), os.FileMode(USR_RD_WR))
 
 				if err != nil {
 					panic(err)
